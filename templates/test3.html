@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+    <stale>
+    .chart {
+    min-width: 320px;
+    max-width: 800px;
+    height: 220px;
+    margin: 0 auto;
+}
+    </stale>
+    <script src="https://img.hcharts.cn/jquery/jquery-1.8.3.min.js"></script>
+    <script src="https://img.hcharts.cn/highcharts/highcharts.js"></script>
+    <script src="https://img.hcharts.cn/highcharts/highcharts-more.js"></script>
+    <script src="https://img.hcharts.cn/highcharts-plugins/highcharts-zh_CN.js"></script>
+</head>
+  </head>
+  <body>
+    
+    
+    <script>
+      /*
+本例子的目的是为了演示通过 Dom 事件、Highcharts 事件、Highcharts API 来讲一个页面中的多个图表进行联动的。
+本例通过循环创建类似的图表并绑定鼠标的滑动事件来对多个图表进行演示联动效果。
+*/
+      $(function() {
+        /**
+         * 为了让多个图表的提示框即十字准星线能够联动，这里绑定多个图表的附件 dom 的鼠标事件进行联动
+         */
+        //tin_calibration
+        $('#container').bind('mousemove touchmove touchstart', function(e) {
+          var chart, point, i, event
+          for (i = 0; i < Highcharts.charts.length; i = i + 1) {
+            chart = Highcharts.charts[i]
+            event = chart.pointer.normalize(e.originalEvent) // Find coordinates within the chart
+            point = chart.series[0].searchPoint(event, true) // Get the hovered point
+            if (point) {
+              point.highlight(e)
+            }
+          }
+        })
+        /**
+         * 重写内部的方法， 这里是将提示框即十字准星的隐藏函数关闭
+         */
+        Highcharts.Pointer.prototype.reset = function() {
+          return undefined
+        }
+        /**
+         * 高亮当前的数据点，并设置鼠标滑动状态及绘制十字准星线
+         */
+        Highcharts.Point.prototype.highlight = function(event) {
+          this.onMouseOver() // 显示鼠标激活标识
+          this.series.chart.tooltip.refresh(this) // 显示提示框
+          this.series.chart.xAxis[0].drawCrosshair(event, this) // 显示十字准星线
+        }
+        /**
+         * 同步缩放效果，即当一个图表进行了缩放效果，其他图表也进行缩放
+         */
+        function syncExtremes(e) {
+          var thisChart = this.chart
+          if (e.trigger !== 'syncExtremes') {
+            Highcharts.each(Highcharts.charts, function(chart) {
+              if (chart !== thisChart) {
+                if (chart.xAxis[0].setExtremes) {
+                  chart.xAxis[0].setExtremes(e.min, e.max, undefined, false, {
+                    trigger: 'syncExtremes'
+                  })
+                }
+              }
+            })
+          }
+        }
+        // 获取 JSON 数据，数据文件地址：
+        //https://github.com/highcharts/highcharts/blob/master/samples/data/activity.json
+        // var datath=[
+        //   {
+        //     //"PFltSig_rFlowPfilRefB1_T"
+        //     name: '初始值2',
+        //     color: 'rgba(223, 83, 83, .5)',
+        //     data: [
+        //       [-50.040000000000006, 0.0365],
+        //       [85.66, 0.03607],
+        //       [221.35999999999999, 0.035],
+        //       [357.15999999999997, 0.0329],
+        //       [492.86, 0.0313],
+        //       [628.5600000000001, 0.02856],
+        //       [764.26, 0.02682],
+        //       [900.0600000000001, 0.02629],
+        //       [1035.76, 0.02587],
+        //       [1171.46, 0.02546],
+        //       [1307.26, 0.02503]
+        //     ]
+        //   },
+        //   {
+        //     name: '标定值2',
+        //     color: 'rgba(119, 152, 191, .5)',
+        //     data: [
+        //       [-50.040000000000006, 0.0365],
+        //       [85.66, 0.03607],
+        //       [221.35999999999999, 0.035],
+        //       [357.15999999999997, 0.0329],
+        //       [492.86, 0.0313],
+        //       [628.5600000000001, 0.02856],
+        //       [764.26, 0.02682],
+        //       [900.0600000000001, 0.02629],
+        //       [1035.76, 0.02587],
+        //       [1171.46, 0.02546],
+        //       [1307.26, 0.02503]
+        //     ]
+        //   }
+        // ]
+        var curve1 = [
+          {
+           
+            name: '初始值',
+            lineWidth: 3,
+            color: 'rgba(223, 83, 83, .5)',
+            data: [
+              [-50.040000000000006, 0.817],
+              [85.66, 1.162],
+              [221.35999999999999, 1.473],
+              [357.15999999999997, 1.674],
+              [492.86, 1.731],
+              [628.5600000000001, 2.19],
+              [764.26, 2.548],
+              [900.0600000000001, 2.79],
+              [1035.76, 3.026],
+              [1171.46, 3.255],
+              [1307.26, 3.479]
+            ]
+          },
+          {
+            name: '标定值',
+            lineWidth: 3,
+            color: 'rgba(119, 152, 191, .5)',
+            data: [
+              [-50.040000000000006, 0.817],
+              [85.66, 1.162],
+              [221.35999999999999, 1.473],
+              [357.15999999999997, 1.674],
+              [492.86, 1.731],
+              [628.5600000000001, 2.19],
+              [764.26, 2.548],
+              [900.0600000000001, 2.79],
+              [1035.76, 3.026],
+              [1171.46, 3.255],
+              [1307.26, 3.479]
+            ]
+          }
+        ]
+        var curve2 = [
+          {
+            //"PFltSig_rFlowPfilRefB1_T"
+            name: '初始值2',
+            color: 'rgba(223, 83, 83, .5)',
+            data: [
+              [-50.040000000000006, 0.0365],
+              [85.66, 0.03607],
+              [221.35999999999999, 0.035],
+              [357.15999999999997, 0.0329],
+              [492.86, 0.0313],
+              [628.5600000000001, 0.02856],
+              [764.26, 0.02682],
+              [900.0600000000001, 0.02629],
+              [1035.76, 0.02587],
+              [1171.46, 0.02546],
+              [1307.26, 0.02503]
+            ]
+          },
+          {
+            name: '标定值2',
+            color: 'rgba(119, 152, 191, .5)',
+            data: [
+              [-50.040000000000006, 0.0365],
+              [85.66, 0.03607],
+              [221.35999999999999, 0.035],
+              [357.15999999999997, 0.0329],
+              [492.86, 0.0313],
+              [628.5600000000001, 0.02856],
+              [764.26, 0.02682],
+              [900.0600000000001, 0.02629],
+              [1035.76, 0.02587],
+              [1171.46, 0.02546],
+              [1307.26, 0.02503]
+            ]
+          }
+        ]
+
+        var curves = [
+          {
+            name: '标定值s',
+            color: 'rgba(223, 83, 83, .5)',
+            data: [
+              [-50.040000000000006, 0.0298205],
+              [85.66, 0.04191334],
+              [221.35999999999999, 0.051555],
+              [357.15999999999997, 0.0550746],
+              [492.86, 0.0541803],
+              [628.5600000000001, 0.0625464],
+              [764.26, 0.06833736],
+              [900.0600000000001, 0.0733491],
+              [1035.76, 0.07828262],
+              [1171.46, 0.0828723],
+              [1307.26, 0.08707937]
+            ]
+          },
+          {
+            name: '初始值s',
+            color: 'rgba(119, 152, 191, .5)',
+            data: [
+              [-50.040000000000006, 0.0298205],
+              [85.66, 0.04191334],
+              [221.35999999999999, 0.051555],
+              [357.15999999999997, 0.0550746],
+              [492.86, 0.0541803],
+              [628.5600000000001, 0.0625464],
+              [764.26, 0.06833736],
+              [900.0600000000001, 0.0733491],
+              [1035.76, 0.07828262],
+              [1171.46, 0.0828723],
+              [1307.26, 0.08707937]
+            ]
+          }
+        ]
+        // curves
+        var curves2 = [
+        {
+              name: '初始值',
+              lineWidth: 3,
+              color: 'rgba(223, 83, 83, .5)',
+              data: curves[1]['data']
+            },
+            {
+              name: '标定值',
+              lineWidth: 3,
+              color: 'rgba(119, 152, 191, .5)',
+              data: curves[0]['data']
+            }
+        ]
+        //PFltSig_rFlowPfilRefB1_T
+        var curves3 = [
+        {
+          name: '初始值',
+              lineWidth: 3,
+              color: 'rgba(223, 83, 83, .5)',
+              data: curve1[1]['data']
+            },
+            {
+              name: '标定值',
+              lineWidth: 3,
+              color: 'rgba(119, 152, 191, .5)',
+              data: curve1[0]['data']
+            }
+        ]
+        // PFltSig_ratRFlowEgB1_T
+        var curves4 = [
+        {
+          name: '初始值',
+              lineWidth: 3,
+              color: 'rgba(223, 83, 83, .5)',
+              data: curve2[1]['data']
+            },
+            {
+              name: '标定值',
+              lineWidth: 3,
+              color: 'rgba(119, 152, 191, .5)',
+              data: curve2[0]['data']
+            }
+        ]
+
+
+        ///
+        var dataserious=[
+       curves2,curves3,curves4
+            ]
+            for(var i=0;i<dataserious.length;i++){
+              console.log(dataserious[i]);
+              $('<div class="chart">')
+                .appendTo('#container')
+                .highcharts({
+                  chart: {
+                    marginLeft: 40, // Keep all charts left aligned
+                    spacingTop: 20,
+                    spacingBottom: 20,
+                    zoomType: 'x'
+                  },
+                  title: {
+                    text: "",
+                    align: 'left',
+                    margin: 0,
+                    x: 30
+                  },
+                  credits: {
+                    enabled: false
+                  },
+                  legend: {
+                    enabled: false
+                  },
+                  xAxis: {
+                    crosshair: true,
+                    events: {
+                      setExtremes: syncExtremes
+                    },
+                    labels: {
+                      format: '{value} km'
+                    }
+                  },
+                  yAxis: {
+                    title: {
+                      text: null
+                    }
+                  },
+                  
+                  series: dataserious[i]
+                    // {
+                    //   data: dataserious[i][data],
+                     
+                    // }
+                  
+                })
+            }
+          // dataserious.forEach(x=>{
+          //   console.log(x);
+            
+          //   })
+          
+          
+          
+          
+          
+              function syncExtremes(e) {
+        var thisChart = this.chart;
+        if (e.trigger !== 'syncExtremes') { 
+            Highcharts.each(Highcharts.charts, function (chart) {
+                if (chart !== thisChart) {
+                    if (chart.xAxis[0].setExtremes) { 
+                        chart.xAxis[0].setExtremes(e.min, e.max, undefined, false, { trigger: 'syncExtremes' });
+                    }
+                }
+            });
+        }
+    }
+     
+  })
+    </script>
+    <div id="container"></div>
+  </body>
+</html>

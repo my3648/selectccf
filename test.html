@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Page Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="./static/jquery-3.3.1.min.js"></script>
+</head>
+
+<body>
+    <input id="test" type="button" value="test" style="width:22%" />
+
+    <script>
+        $('#test').click(function () {
+            function sendfile() {
+                $.ajax({
+                    type: 'POST',
+                    url: 'http://139.224.5.105:30002/uaes-intelligent-calibration/v1/wc/gpf/analysisGPFToolBox',
+                    data: {
+                        jsonstr: {
+                            "PFltSig_vfEgPfilFildMinB1_C": 100.0,
+                            "PFltSig_vfEgPfilFildMaxB1_C": 800.0,
+                            "PFltSig_tiNormMin_C": 20.0,
+                            "PFltSig_dvfEgPfilFildMinB1_C": 35.0,
+                            "PFltSig_dvfEgPfilFildMaxB1_C": 1000.0,
+                            "PFltSig_dmSotOxdMax_C": 32.0,
+                            "PPfilDif_ratPCorrlnThdDual_C": -0.5,
+                            "PFltSig_ratPCorrlnMinDiag_C": 0.3,
+                            "PFltSig_numPCorrlnAvrgDiag_C": 3.0,
+                            "PFltSig_numPCorrlnAvrg_C": 6.0,
+                            "PFltSig_facPDeltaPfilRefCorrB1_C": 0,
+                            "PFltSig_tiFilPDifB1_C": 4.0,
+                            "PFltSig_tiFilVfB1_C": 4.0,
+                            "PFltSig_stRstCrssCorrlnB1_C": 0,
+                            "PFltSig_StMacPBasdB1.tiEfcDurnMin_C": 20.0,
+                            "PFltSig_stHaltCrssCorrlnB1_C": 78,
+                            "PFltSig_rFlowPfilRefB1_T": {
+                                "retXData": [
+                                    274.960,
+                                    324.960,
+                                    374.9600,
+                                    424.96000,
+                                    474.960000000000,
+                                    524.960000,
+                                    574.960000000,
+                                    624.9600000000,
+                                    674.960000000000,
+                                    724.96000000,
+                                    774.9600000000000
+                                ],
+                                "retZData": [
+                                    0.02550000000000000,
+                                    0.02790000000000000,
+                                    0.02440000000000000,
+                                    0.02610000000000000,
+                                    0.02680000000000000,
+                                    0.02340000000000000,
+                                    0.02600000000000000,
+                                    0.02490000000000000,
+                                    0.02130000000000000,
+                                    0.02000000000000000,
+                                    0.01900000000000000
+                                ]
+                            },
+                            "PFltSig_ratRFlowEgB1_T": {
+                                "retXData": [
+                                    -50.040000000000,
+                                    85.66,
+                                    221.36,
+                                    357.16,
+                                    492.86,
+                                    628.560000000000,
+                                    764.26,
+                                    900.0600000000, 1035.76,
+                                    1171.46,
+                                    1307.26
+                                ],
+                                "retZData": [
+                                    0.817,
+                                    1.162,
+                                    1.473,
+                                    1.762,
+                                    2.036,
+                                    2.297,
+                                    2.548,
+                                    2.79,
+                                    3.026,
+                                    3.255,
+                                    3.479
+                                ]
+                            }
+                        },
+                        fileUrl: "uaes-bucket/UAES-NE2/GPFtoolbox/lit.dat"
+                    },
+                    dataType: 'json',
+                    success: function (data) {
+                        console.log(data);
+                    }
+                });
+            }
+            sendfile()
+        })
+    </script>
+</body>
+
+</html>
